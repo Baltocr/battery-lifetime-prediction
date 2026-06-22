@@ -1,4 +1,6 @@
 import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
 
 from sklearn.dummy import DummyRegressor
 from sklearn.pipeline import Pipeline
@@ -121,3 +123,26 @@ if __name__ == "__main__":
     print(f"\nSaved model results to: {output_path}")
     print("\nModel comparison:")
     print(results)
+
+    figures_dir = Path("reports/figures")
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    plt.figure(figsize=(6, 6))
+    plt.scatter(y_test, rf_predictions, alpha=0.8)
+
+    min_value = min(y_test.min(), rf_predictions.min())
+    max_value = max(y_test.max(), rf_predictions.max())
+
+    plt.plot([min_value, max_value], [min_value, max_value], linestyle="--")
+
+    plt.title("Random Forest: Predicted vs Actual Cycle Life")
+    plt.xlabel("Actual Cycle Life")
+    plt.ylabel("Predicted Cycle Life")
+
+    plt.tight_layout()
+
+    output_plot = figures_dir / "random_forest_predicted_vs_actual.png"
+    plt.savefig(output_plot, dpi=300)
+    plt.close()
+
+    print(f"\nSaved predicted vs actual plot to: {output_plot}")
