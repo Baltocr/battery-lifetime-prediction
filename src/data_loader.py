@@ -2,6 +2,8 @@ from pathlib import Path
 import h5py
 import numpy as np
 
+from features import extract_summary_features_for_cell
+
 def get_raw_data_files(raw_dir="data/raw"):
     """
     Return all .mat files inside the raw data folder.
@@ -78,25 +80,55 @@ if __name__ == "__main__":
     all_records = []
 
     for file in files:
-        records = load_cycle_lives(file)
-        all_records.extend(records)
+        print(f"Processing {file.name}...")
 
-        print(f"{file.name}: {len(records)} valid cells")
+        with h5py.File(file, "r") as f:
+            batch = f["batch"]
+            cycle_life_refs = batch["cycle_life"]
+
+            batch_records = []
+
+            for cell_index in range(cycle_life_refs.shape[0]):
+                ref = cycle_life_refs[cell_index, 0]
+                value = f[ref][()]
+                cycle_life = float(value.squeeze())
+
+                if np.isnan(cycle_life):
+                    print(f"Skipping cell {cell_index}: cycle life is NaN")
+                    continue
+
+                features = extract_summary_features_for_cell(
+                    h5_file=f,
+                    batch=batch,
+                    cell_index=cell_index
+                )
+
+                record = {
+                    "batch_file": file.name,
+                    "cell_index": cell_index,
+                    "cycle_life": int(cycle_life),
+                }
+
+                record.update(features)
+                batch_records.append(record)
+
+            print(f"Valid cells from this batch: {len(batch_records)}")
+            all_records.extend(batch_records)
 
     df = pd.DataFrame(all_records)
 
-    print("\nDataset preview:")
+    print("\nFinal feature table preview:")
     print(df.head())
 
-    print("\nDataset shape:")
+    print("\nShape:")
     print(df.shape)
 
     print("\nCycle life summary:")
     print(df["cycle_life"].describe())
 
-    output_path = Path("data/processed/cell_cycle_lives.csv")
+    output_path = Path("data/processed/summary_features.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     df.to_csv(output_path, index=False)
 
-    print(f"\nSaved cycle life table to: {output_path}")
+    print(f"\nSaved summary feature table to: {output_path}")
