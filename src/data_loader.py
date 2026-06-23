@@ -2,7 +2,15 @@ from pathlib import Path
 import h5py
 import numpy as np
 
-from features import extract_summary_features_for_cell
+from features import extract_summary_features_for_cell, extract_delta_q_features_for_cell
+
+
+def _read_scalar(dataset):
+    """Read a scalar or 1-element dataset from HDF5 and return a Python scalar."""
+    value = dataset[()]
+    if isinstance(value, np.ndarray):
+        value = value.squeeze()
+    return value
 
 def get_raw_data_files(raw_dir="data/raw"):
     """
@@ -35,8 +43,8 @@ def load_cycle_lives(file_path):
 
         for i in range(cycle_life_refs.shape[0]):
             ref = cycle_life_refs[i, 0]
-            value = f[ref][()]
-            clean_value = float(value.squeeze())
+            value = _read_scalar(f[ref])
+            clean_value = float(value)
 
             if np.isnan(clean_value):
                 print(f"Skipping cell {i} in {file_path.name}: cycle life is NaN")
@@ -67,8 +75,8 @@ def inspect_mat_file(file_path):
 
         for i in range(min(10, cycle_life_refs.shape[0])):
             ref = cycle_life_refs[i, 0]
-            value = f[ref][()]
-            clean_value = int(value.squeeze())
+            value = _read_scalar(f[ref])
+            clean_value = int(value)
 
             print(f"Cell {i}: {clean_value} cycles")
 
@@ -97,11 +105,23 @@ if __name__ == "__main__":
                     print(f"Skipping cell {cell_index}: cycle life is NaN")
                     continue
 
-                features = extract_summary_features_for_cell(
+                summary_features = extract_summary_features_for_cell(
                     h5_file=f,
                     batch=batch,
                     cell_index=cell_index
                 )
+
+                delta_q_features = extract_delta_q_features_for_cell(
+                    h5_file=f,
+                    batch=batch,
+                    cell_index=cell_index,
+                    cycle_early=10,
+                    cycle_late=100
+                )
+
+                features = {}
+                features.update(summary_features)
+                features.update(delta_q_features)
 
                 record = {
                     "batch_file": file.name,
@@ -123,8 +143,8 @@ if __name__ == "__main__":
     print("\nShape:")
     print(df.shape)
 
-    print("\nCycle life summary:")
-    print(df["cycle_life"].describe())
+    print("\nColumns:")
+    print(df.columns.tolist())
 
     output_path = Path("data/processed/summary_features.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,3 +152,11 @@ if __name__ == "__main__":
     df.to_csv(output_path, index=False)
 
     print(f"\nSaved summary feature table to: {output_path}")
+
+
+
+
+
+
+
+

@@ -135,13 +135,20 @@ if __name__ == "__main__":
 
     plt.plot([min_value, max_value], [min_value, max_value], linestyle="--")
 
-    plt.title("Random Forest: Predicted vs Actual Cycle Life")
+    plt.scatter(y_test, ridge_predictions, alpha=0.8)
+
+    min_value = min(y_test.min(), ridge_predictions.min())
+    max_value = max(y_test.max(), ridge_predictions.max())
+
+    plt.plot([min_value, max_value], [min_value, max_value], linestyle="--")
+
+    plt.title("Ridge Regression: Predicted vs Actual Cycle Life")
     plt.xlabel("Actual Cycle Life")
     plt.ylabel("Predicted Cycle Life")
 
     plt.tight_layout()
 
-    output_plot = figures_dir / "random_forest_predicted_vs_actual.png"
+    output_plot = figures_dir / "ridge_predicted_vs_actual.png"
     plt.savefig(output_plot, dpi=300)
     plt.close()
 

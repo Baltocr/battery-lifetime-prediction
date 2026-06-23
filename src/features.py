@@ -32,3 +32,45 @@ def extract_summary_features_for_cell(h5_file, batch, cell_index):
     }
 
     return features
+
+def extract_delta_q_features_for_cell(h5_file, batch, cell_index, cycle_early=10, cycle_late=100):
+    """
+    Extract Delta Q features using Qdlin from two early cycles.
+
+    Delta Q = Qdlin(cycle_late) - Qdlin(cycle_early)
+
+    cycle_early and cycle_late are written using human cycle numbers,
+    so cycle 10 corresponds to Python index 9.
+    """
+    cycles_refs = batch["cycles"]
+    ref = cycles_refs[cell_index, 0]
+    cycles = h5_file[ref]
+
+    early_index = cycle_early - 1
+    late_index = cycle_late - 1
+
+    qdlin_early_ref = cycles["Qdlin"][early_index, 0]
+    qdlin_late_ref = cycles["Qdlin"][late_index, 0]
+
+    qdlin_early = h5_file[qdlin_early_ref][()].squeeze()
+    qdlin_late = h5_file[qdlin_late_ref][()].squeeze()
+
+    delta_q = qdlin_late - qdlin_early
+
+    features = {
+        f"delta_q_min_{cycle_late}_{cycle_early}": float(np.min(delta_q)),
+        f"delta_q_max_{cycle_late}_{cycle_early}": float(np.max(delta_q)),
+        f"delta_q_mean_{cycle_late}_{cycle_early}": float(np.mean(delta_q)),
+        f"delta_q_var_{cycle_late}_{cycle_early}": float(np.var(delta_q)),
+    }
+
+    return features
+
+
+
+
+
+
+
+
+
