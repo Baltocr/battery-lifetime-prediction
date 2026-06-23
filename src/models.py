@@ -29,6 +29,34 @@ def evaluate_model(model, X_test, y_test):
 
     return predictions, mae, rmse, r2
 
+def cross_validate_model(model, X, y, cv):
+    """
+    Run cross-validation for a regression model.
+    Returns mean and standard deviation for MAE, RMSE, and R².
+    """
+    scores = cross_validate(
+        model,
+        X,
+        y,
+        cv=cv,
+        scoring={
+            "mae": "neg_mean_absolute_error",
+            "rmse": "neg_root_mean_squared_error",
+            "r2": "r2",
+        }
+    )
+
+    results = {
+        "mae_mean": -scores["test_mae"].mean(),
+        "mae_std": scores["test_mae"].std(),
+        "rmse_mean": -scores["test_rmse"].mean(),
+        "rmse_std": scores["test_rmse"].std(),
+        "r2_mean": scores["test_r2"].mean(),
+        "r2_std": scores["test_r2"].std(),
+    }
+
+    return results
+
 if __name__ == "__main__":
     df = load_feature_table()
 
