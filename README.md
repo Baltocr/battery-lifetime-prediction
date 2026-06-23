@@ -50,6 +50,7 @@ These features summarize how the discharge curve changes early in the battery's 
 |---|---:|---:|---:|
 | Dummy Mean Baseline | 197.66 | 243.02 | -0.084 |
 | Ridge Regression | 57.94 | 77.71 | 0.889 |
+| ElasticNet | 55.25 | 69.07 | 0.912 |
 | Random Forest | 66.80 | 108.31 | 0.785 |
 
 ### 5-Fold Cross-Validation
@@ -57,9 +58,10 @@ These features summarize how the discharge curve changes early in the battery's 
 | Model | MAE cycles | RMSE cycles | R² |
 |---|---:|---:|---:|
 | Ridge Regression | 108.12 | 169.52 | 0.707 |
+| ElasticNet | 107.61 | 162.00 | 0.729 |
 | Random Forest | 97.78 | 145.99 | 0.775 |
 
-The holdout split suggests that Ridge Regression performs best on one specific train/test split. However, 5-fold cross-validation gives a more robust estimate of model performance and shows that Random Forest performs slightly better on average.
+The holdout split suggests that ElasticNet performs best on one specific train/test split. However, 5-fold cross-validation gives a more robust estimate of model performance and shows that Random Forest performs slightly better on average.
 
 This distinction is important because the dataset is small, so a single train/test split can make one model look better than it may be across different splits.
 
@@ -182,7 +184,7 @@ Completed:
 - handled missing cycle-life values
 - engineered early-cycle summary features
 - engineered Delta Q features from cycles 10 and 100
-- trained Dummy, Ridge Regression, and Random Forest models
+- trained Dummy, Ridge Regression, ElasticNet, and Random Forest models
 - evaluated models using holdout testing and 5-fold cross-validation
 - generated model comparison results
 - generated predicted-vs-actual plot
@@ -191,6 +193,4 @@ Completed:
 - generated Ridge coefficient table
 
 Next steps:
-
-- add ElasticNet as another regularized linear model
 - optionally build a Streamlit dashboard
