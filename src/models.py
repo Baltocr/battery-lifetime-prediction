@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
@@ -64,6 +64,24 @@ if __name__ == "__main__":
         ("model", Ridge(alpha=1.0))
     ])
 
+    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+    ridge_cv_scores = cross_validate(
+        ridge_model,
+        X,
+        y,
+        cv=cv,
+        scoring={
+            "mae": "neg_mean_absolute_error",
+            "rmse": "neg_root_mean_squared_error",
+            "r2": "r2",
+        }
+    )
+
+    print("\nRidge regression 5-fold cross-validation:")
+    print(f"MAE: {-ridge_cv_scores['test_mae'].mean():.2f} ± {ridge_cv_scores['test_mae'].std():.2f} cycles")
+    print(f"RMSE: {-ridge_cv_scores['test_rmse'].mean():.2f} ± {ridge_cv_scores['test_rmse'].std():.2f} cycles")
+    print(f"R²: {ridge_cv_scores['test_r2'].mean():.3f} ± {ridge_cv_scores['test_r2'].std():.3f}")
     ridge_model.fit(X_train, y_train)
 
     ridge_predictions = ridge_model.predict(X_test)
@@ -83,6 +101,23 @@ if __name__ == "__main__":
         min_samples_leaf=3
     )
 
+    rf_cv_scores = cross_validate(
+        rf_model,
+        X,
+        y,
+        cv=cv,
+        scoring={
+            "mae": "neg_mean_absolute_error",
+            "rmse": "neg_root_mean_squared_error",
+            "r2": "r2",
+        }
+    )
+
+    print("\nRandom Forest 5-fold cross-validation:")
+    print(f"MAE: {-rf_cv_scores['test_mae'].mean():.2f} ± {rf_cv_scores['test_mae'].std():.2f} cycles")
+    print(f"RMSE: {-rf_cv_scores['test_rmse'].mean():.2f} ± {rf_cv_scores['test_rmse'].std():.2f} cycles")
+    print(f"R²: {rf_cv_scores['test_r2'].mean():.3f} ± {rf_cv_scores['test_r2'].std():.3f}")
+
     rf_model.fit(X_train, y_train)
 
     rf_predictions = rf_model.predict(X_test)
@@ -99,21 +134,38 @@ if __name__ == "__main__":
     results = pd.DataFrame([
         {
             "model": "Dummy Mean Baseline",
+            "evaluation": "holdout",
             "mae_cycles": mae,
             "rmse_cycles": rmse,
             "r2": r2,
         },
         {
             "model": "Ridge Regression",
+            "evaluation": "holdout",
             "mae_cycles": ridge_mae,
             "rmse_cycles": ridge_rmse,
             "r2": ridge_r2,
         },
         {
             "model": "Random Forest",
+            "evaluation": "holdout",
             "mae_cycles": rf_mae,
             "rmse_cycles": rf_rmse,
             "r2": rf_r2,
+        },
+        {
+            "model": "Ridge Regression",
+            "evaluation": "5-fold CV mean",
+            "mae_cycles": -ridge_cv_scores["test_mae"].mean(),
+            "rmse_cycles": -ridge_cv_scores["test_rmse"].mean(),
+            "r2": ridge_cv_scores["test_r2"].mean(),
+        },
+        {
+            "model": "Random Forest",
+            "evaluation": "5-fold CV mean",
+            "mae_cycles": -rf_cv_scores["test_mae"].mean(),
+            "rmse_cycles": -rf_cv_scores["test_rmse"].mean(),
+            "r2": rf_cv_scores["test_r2"].mean(),
         },
     ])
 
