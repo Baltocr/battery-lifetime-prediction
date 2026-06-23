@@ -63,6 +63,11 @@ Random Forest feature importance shows that the most important predictors are De
 
 This supports the idea that early changes in discharge curve shape contain predictive information about long-term battery degradation.
 
+The Ridge Regression coefficient analysis also shows that Delta Q features are among the strongest predictors after standardization. In particular, `delta_q_min_100_10`, `delta_q_var_100_10`, and `delta_q_mean_100_10` have large coefficient magnitudes, suggesting that early shifts in the discharge-capacity curve are strongly associated with predicted cycle life.
+
+Because Ridge Regression was used inside a pipeline with `StandardScaler`, the coefficient magnitudes are comparable across features. Positive coefficients indicate features associated with longer predicted cycle life, while negative coefficients indicate features associated with shorter predicted cycle life.
+
+
 Repository Structure
 
 battery-lifetime-prediction/
