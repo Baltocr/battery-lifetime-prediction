@@ -134,6 +134,22 @@ if __name__ == "__main__":
     print(f"RMSE: {ridge_rmse:.2f} cycles")
     print(f"R²: {ridge_r2:.3f}")
 
+    ridge_coefficients = ridge_model.named_steps["model"].coef_
+
+    ridge_coef_df = pd.DataFrame({
+        "feature": feature_cols,
+        "coefficient": ridge_coefficients,
+        "abs_coefficient": abs(ridge_coefficients)
+    }).sort_values("abs_coefficient", ascending=False)
+
+    print("\nRidge regression coefficients:")
+    print(ridge_coef_df)
+
+    ridge_coef_output_path = "reports/ridge_coefficients.csv"
+    ridge_coef_df.to_csv(ridge_coef_output_path, index=False)
+
+    print(f"\nSaved Ridge coefficients to: {ridge_coef_output_path}")
+
     rf_model = RandomForestRegressor(
         n_estimators=300,
         random_state=42,
