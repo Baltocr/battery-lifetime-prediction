@@ -17,6 +17,17 @@ def load_feature_table(path="data/processed/summary_features.csv"):
     """
     return pd.read_csv(path)
 
+def evaluate_model(model, X_test, y_test):
+    """
+    Evaluate a trained regression model.
+    Returns predictions, MAE, RMSE, and R².
+    """
+    predictions = model.predict(X_test)
+    mae = mean_absolute_error(y_test, predictions)
+    rmse = mean_squared_error(y_test, predictions) ** 0.5
+    r2 = r2_score(y_test, predictions)
+
+    return predictions, mae, rmse, r2
 
 if __name__ == "__main__":
     df = load_feature_table()
@@ -84,11 +95,11 @@ if __name__ == "__main__":
     print(f"R²: {ridge_cv_scores['test_r2'].mean():.3f} ± {ridge_cv_scores['test_r2'].std():.3f}")
     ridge_model.fit(X_train, y_train)
 
-    ridge_predictions = ridge_model.predict(X_test)
-
-    ridge_mae = mean_absolute_error(y_test, ridge_predictions)
-    ridge_rmse = mean_squared_error(y_test, ridge_predictions) ** 0.5
-    ridge_r2 = r2_score(y_test, ridge_predictions)
+    ridge_predictions, ridge_mae, ridge_rmse, ridge_r2 = evaluate_model(
+    ridge_model,
+    X_test,
+    y_test
+)
 
     print("\nRidge regression results:")
     print(f"MAE: {ridge_mae:.2f} cycles")
@@ -120,11 +131,11 @@ if __name__ == "__main__":
 
     rf_model.fit(X_train, y_train)
 
-    rf_predictions = rf_model.predict(X_test)
-
-    rf_mae = mean_absolute_error(y_test, rf_predictions)
-    rf_rmse = mean_squared_error(y_test, rf_predictions) ** 0.5
-    rf_r2 = r2_score(y_test, rf_predictions)
+    rf_predictions, rf_mae, rf_rmse, rf_r2 = evaluate_model(
+        rf_model,
+        X_test,
+        y_test
+    )
 
     print("\nRandom Forest results:")
     print(f"MAE: {rf_mae:.2f} cycles")
