@@ -77,6 +77,22 @@ The Ridge Regression coefficient analysis also shows that Delta Q features are a
 
 Because Ridge Regression was used inside a pipeline with `StandardScaler`, the coefficient magnitudes are comparable across features. Positive coefficients indicate features associated with longer predicted cycle life, while negative coefficients indicate features associated with shorter predicted cycle life.
 
+## Limitations
+
+This project should be interpreted as a reproducible machine learning case study, not as a universal battery lifetime predictor.
+
+Current limitations include:
+
+- the dataset uses one battery chemistry: LFP/graphite cells
+- the cells were tested under specific fast-charging protocols
+- the dataset is relatively small for machine learning
+- model performance may vary depending on the train/test split
+- features are extracted only from this structured dataset format
+- the model has not yet been validated on other battery chemistries or cycling conditions
+
+These limitations are important because battery degradation depends strongly on chemistry, temperature, charging protocol, cell design, and operating conditions.
+
+
 ## Visual Results
 
 ### Cycle Life Distribution
@@ -149,6 +165,14 @@ Generate visualizations:
 python src/visualization.py
 ```
 
+## Citation
+
+This project uses the MIT-Stanford-Toyota battery degradation dataset associated with:
+
+Severson, K. A., Attia, P. M., Jin, N., Perkins, N., Jiang, B., Yang, Z., Chen, M. H., Aykol, M., Herring, P. K., Fraggedakis, D., Bazant, M. Z., Harris, S. J., Chueh, W. C., & Braatz, R. D. (2019). Data-driven prediction of battery cycle life before capacity degradation. *Nature Energy*, 4, 383–391.
+
+The raw dataset is not redistributed in this repository. Users should download it from the official Toyota Research Institute dataset page.
+
 ## Current Status
 
 Completed:
@@ -169,6 +193,4 @@ Completed:
 Next steps:
 
 - add ElasticNet as another regularized linear model
-- add a limitations section
-- add a citation section for the dataset and original paper
 - optionally build a Streamlit dashboard
