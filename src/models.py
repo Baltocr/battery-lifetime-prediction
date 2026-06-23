@@ -117,15 +117,45 @@ if __name__ == "__main__":
         },
     ])
 
+    importances = rf_model.feature_importances_
+
+    importance_df = pd.DataFrame({
+        "feature": feature_cols,
+        "importance": importances
+    }).sort_values("importance", ascending=False)
+
+    print("\nRandom Forest feature importances:")
+    print(importance_df)
+
+    figures_dir = Path("reports/figures")
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    importance_output_path = "reports/feature_importances.csv"
+    importance_df.to_csv(importance_output_path, index=False)
+    print(f"\nSaved feature importances to: {importance_output_path}")
+
+    plt.figure(figsize=(8, 6))
+    plt.barh(importance_df["feature"], importance_df["importance"])
+    plt.gca().invert_yaxis()
+
+    plt.title("Random Forest Feature Importance")
+    plt.xlabel("Importance")
+    plt.ylabel("Feature")
+
+    plt.tight_layout()
+
+    importance_plot_path = figures_dir / "random_forest_feature_importance.png"
+    plt.savefig(importance_plot_path, dpi=300)
+    plt.close()
+
+    print(f"Saved feature importance plot to: {importance_plot_path}")
+
     output_path = "reports/model_results.csv"
     results.to_csv(output_path, index=False)
 
     print(f"\nSaved model results to: {output_path}")
     print("\nModel comparison:")
     print(results)
-
-    figures_dir = Path("reports/figures")
-    figures_dir.mkdir(parents=True, exist_ok=True)
 
     plt.figure(figsize=(6, 6))
     plt.scatter(y_test, rf_predictions, alpha=0.8)
