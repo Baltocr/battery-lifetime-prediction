@@ -36,12 +36,22 @@ These features summarize how the discharge curve changes early in the battery’
 
 Initial Model Results
 
+Holdout Test Set
+
 Model	MAE cycles	RMSE cycles	R²
 Dummy Mean Baseline	197.66	243.02	-0.084
 Ridge Regression	57.94	77.71	0.889
 Random Forest	66.80	108.31	0.785
 
-Adding Delta Q features significantly improved model performance. Ridge Regression currently performs best, suggesting that physics-informed feature engineering can make simple models highly effective on this dataset.
+5-Fold Cross-Validation
+
+Model	MAE cycles	RMSE cycles	R²
+Ridge Regression	108.12	169.52	0.707
+Random Forest	97.78	145.99	0.775
+
+The holdout split suggests that Ridge Regression performs best on one specific train/test split. However, 5-fold cross-validation gives a more robust estimate of model performance and shows that Random Forest performs slightly better on average.
+
+This distinction is important because the dataset is small, so a single train/test split can make one model look better than it may be across different splits.
 
 Key Finding So Far
 
